@@ -1,36 +1,114 @@
-<!-- webapp/templates/index.html -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <title>Obuna</title>
-    <script>
-        function subscribe() {
-            const user_id = Telegram.WebApp.initDataUnsafe.user.id;
-            const card_number = document.getElementById("card").value;
-            const expiry = document.getElementById("expiry").value;
+  <meta charset="UTF-8">
+  <title>Obuna</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
 
-            fetch("/subscribe", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ user_id, card_number, card_expiry: expiry })
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message);
-                Telegram.WebApp.close();
-            });
-        }
-    </script>
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+      transition: 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #3f51b5;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3f51b5;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+
+    #message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <h1>Obuna uchun karta ma'lumotlarini kiriting</h1>
-    <label>Karta raqami:</label><br>
-    <input type="text" id="card" placeholder="8600 xxxx xxxx xxxx"><br><br>
-    <label>Muddati (MM/YY):</label><br>
-    <input type="text" id="expiry" placeholder="12/26"><br><br>
-    <button onclick="subscribe()">Obuna bo'lish</button>
+  <div class="container">
+    <h2>💳 Obuna uchun toʻlov</h2>
+    <form id="subscribeForm">
+      <input type="text" name="user_id" placeholder="User ID (raqamingiz)" required>
+      <input type="text" name="card_number" placeholder="Karta raqami (XXXX XXXX XXXX XXXX)" required>
+      <input type="text" name="card_expiry" placeholder="Amal muddati (MM/YY)" required>
+      <button type="submit">Obuna bo'lish</button>
+    </form>
+
+    <div id="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('subscribeForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const user_id = this.user_id.value;
+      const card_number = this.card_number.value;
+      const card_expiry = this.card_expiry.value;
+
+      const response = await fetch('/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id,
+          card_number,
+          card_expiry
+        })
+      });
+
+      const result = await response.json();
+      const message = document.getElementById('message');
+      message.textContent = result.message;
+      message.style.color = result.success ? 'green' : 'red';
+    });
+  </script>
 </body>
 </html>
