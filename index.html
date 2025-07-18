@@ -1,0 +1,36 @@
+<!-- webapp/templates/index.html -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Obuna</title>
+    <script>
+        function subscribe() {
+            const user_id = Telegram.WebApp.initDataUnsafe.user.id;
+            const card_number = document.getElementById("card").value;
+            const expiry = document.getElementById("expiry").value;
+
+            fetch("/subscribe", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ user_id, card_number, card_expiry: expiry })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                Telegram.WebApp.close();
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Obuna uchun karta ma'lumotlarini kiriting</h1>
+    <label>Karta raqami:</label><br>
+    <input type="text" id="card" placeholder="8600 xxxx xxxx xxxx"><br><br>
+    <label>Muddati (MM/YY):</label><br>
+    <input type="text" id="expiry" placeholder="12/26"><br><br>
+    <button onclick="subscribe()">Obuna bo'lish</button>
+</body>
+</html>
