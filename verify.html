@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kodni kiriting</title>
+</head>
+<body>
+    <h2>SMS orqali kelgan kodni kiriting</h2>
+    <form action="/verify" method="post">
+        <input type="hidden" name="user_id" value="{{ user_id }}">
+        <input type="text" name="code" placeholder="Kod..." required>
+        <button type="submit">Tasdiqlash</button>
+    </form>
+</body>
+</html>
