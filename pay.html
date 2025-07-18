@@ -1,15 +1,23 @@
-<!-- webapp/templates/pay.html -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Toʻlov</title>
+    <title>To‘lov sahifasi</title>
+    <style>
+        body { font-family: sans-serif; background: #f9f9f9; padding: 30px; }
+        form { background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; }
+        input { width: 100%; margin-bottom: 15px; padding: 10px; font-size: 16px; }
+        button { padding: 10px 20px; font-size: 18px; background: #28a745; color: white; border: none; border-radius: 5px; }
+    </style>
 </head>
 <body>
-    <h2>Toʻlov sahifasi</h2>
-    <form action="/create_invoice" method="post">
-        <input type="hidden" name="user_id" value="123456"> <!-- Тестовый user_id -->
-        <button type="submit">Toʻlovni amalga oshirish</button>
+    <form action="/create_subscription" method="POST">
+        <input type="hidden" name="user_id" value="{{ user_id }}">
+        <label>Karta raqami</label>
+        <input type="text" name="card_number" placeholder="8600 **** **** ****" required>
+        <label>Amal qilish muddati (MM/YY)</label>
+        <input type="text" name="expire_date" placeholder="12/26" required>
+        <button type="submit">To‘lov qilish</button>
     </form>
 </body>
 </html>
