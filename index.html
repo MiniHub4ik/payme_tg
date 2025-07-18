@@ -1,105 +1,135 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <title>Obuna</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: sans-serif;
-        }
-        body {
-            margin: 0;
-            background: #f9f9f9;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .tarif {
-            background: #e6f1ff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .timer {
-            float: right;
-            background: #fff;
-            color: red;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
-            background: #06d6a0;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: gray;
-        }
-        .footer img {
-            height: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Obuna | Payme</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      text-align: right;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .tarif-box {
+      background: linear-gradient(135deg, #dbeafe, #e0f2fe);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .tarif-box h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #1e3a8a;
+    }
+
+    .price {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1e3a8a;
+      margin: 10px 0;
+    }
+
+    .card-input {
+      margin-top: 20px;
+    }
+
+    .card-input input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #06b6d4;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0891b2;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+    }
+
+    .footer img {
+      height: 20px;
+      vertical-align: middle;
+    }
+
+    .footer a {
+      color: #06b6d4;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <p><strong>AtajanovBlog</strong><br>348342573<br>@a_atajanov</p>
-        <div class="tarif">
-            <h3>AtajanovBlog</h3>
-            <p>Tarif: Oylik obuna</p>
-            <h2>27000 so'm / 1 oyiga</h2>
-            <p>To'lov qilish havolasi<br>
-                muddati tugashiga qoldi:
-                <span class="timer" id="countdown">15:00</span>
-            </p>
-        </div>
-        <form action="/pay" method="POST">
-            <h4>Karta ma’lumotlaringizni kiriting</h4>
-            <input type="text" name="card_number" placeholder="0000 0000 0000 0000" required>
-            <input type="text" name="expire_date" placeholder="MM / YY" required>
-            <button type="submit">🔒 Davom etish</button>
-        </form>
-        <div class="footer">
-            Davom etish orqali siz <a href="#">Payme Ofertasini</a> tasdiqlaysiz<br>
-            <p>Powered by <img src="https://payme.uz/logo.png" alt="Payme"></p>
-        </div>
+  <div class="container">
+    <div class="header">
+      Alisher Atajanov<br/>
+      348342573<br/>
+      @a_atajanov
     </div>
 
-    <script>
-        let time = 900; // 15 minutes
-        const countdown = document.getElementById("countdown");
+    <div class="tarif-box">
+      <h2>AtajanovBlog</h2>
+      <p>Tarif: Oylik obuna</p>
+      <div class="price">27000 so'm / 1 oyiga</div>
+    </div>
 
-        setInterval(() => {
-            if (time <= 0) return;
-            time--;
-            const min = String(Math.floor(time / 60)).padStart(2, '0');
-            const sec = String(time % 60).padStart(2, '0');
-            countdown.textContent = `${min}:${sec}`;
-        }, 1000);
-    </script>
+    <form method="POST" action="/pay">
+      <div class="card-input">
+        <label>Karta raqami</label>
+        <input type="text" name="card_number" placeholder="0000 0000 0000 0000" required />
+
+        <label>Muddati</label>
+        <input type="text" name="expiry" placeholder="MM / YY" required />
+      </div>
+      <button type="submit">Davom etish</button>
+    </form>
+
+    <div class="footer">
+      Davom etish orqali siz <a href="#">Payme Ofertasini</a> tasdiqlaysiz<br/><br/>
+      Powered by <img src="https://cdn.payme.uz/logo/payme_logo.svg" alt="Payme" />
+    </div>
+  </div>
 </body>
 </html>
