@@ -1,181 +1,200 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obuna uchun to‘lov</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>To‘lov sahifasi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
 
-    body {
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
 
-    .container {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            transition: 0.3s;
+        }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+        input.error {
+            border-color: red;
+        }
 
-    input.error {
-      border-color: red;
-    }
+        .card-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: auto;
+        }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #0088cc;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
 
-    button:hover {
-      background: #0074b6;
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 15px;
-    }
+        .success {
+            text-align: center;
+            color: #4CAF50;
+            font-size: 18px;
+            display: none;
+        }
 
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 15px;
-    }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-    .link {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .link a {
-      color: #0088cc;
-      font-weight: 600;
-      text-decoration: none;
-    }
-  </style>
+        button:hover {
+            background: #45a049;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Obuna uchun to‘lov</h2>
-    <input type="text" id="card_number" maxlength="19" placeholder="Karta raqami (16 ta raqam)" />
-    <input type="text" id="expire" maxlength="5" placeholder="Amal muddati (MM/YY)" />
-    <input type="text" id="phone" maxlength="13" placeholder="Telefon raqam (+998...)" />
-    <button onclick="pay()">To‘lovni amalga oshirish</button>
-    <div id="status"></div>
-    <div id="channelLink" class="link"></div>
-  </div>
+<div class="card">
+    <img src="" alt="" class="card-logo" id="cardLogo" style="display: none;">
+    <h2>💳 Karta orqali to‘lov</h2>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    const user = tg.initDataUnsafe?.user;
+    <div class="loader" id="loader"></div>
+    <div class="success" id="successMessage">To‘lov muvaffaqiyatli yakunlandi! <br><br>
+        <a href="https://t.me/your_channel_link" target="_blank">🔗 Kanalga o‘tish</a>
+    </div>
 
-    const cardInput = document.getElementById("card_number");
-    const expireInput = document.getElementById("expire");
-    const phoneInput = document.getElementById("phone");
+    <form id="payment-form">
+        <label>Karta raqami</label>
+        <input type="text" id="cardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required>
 
-    // Автоматическое форматирование номера карты
-    cardInput.addEventListener("input", () => {
-      let val = cardInput.value.replace(/\D/g, "").slice(0, 16);
-      let formatted = val.match(/.{1,4}/g)?.join(" ") ?? "";
-      cardInput.value = formatted;
+        <label>Amal qilish muddati</label>
+        <input type="text" id="expiry" maxlength="5" placeholder="MM/YY" required>
+
+        <label>Telefon raqami</label>
+        <input type="tel" id="phone" pattern="^\d{9,12}$" placeholder="9989xxxxxxx" required>
+
+        <button type="submit">To‘lovni amalga oshirish</button>
+    </form>
+</div>
+
+<script>
+    const cardInput = document.getElementById('cardNumber');
+    const expiryInput = document.getElementById('expiry');
+    const cardLogo = document.getElementById('cardLogo');
+    const loader = document.getElementById('loader');
+    const successMessage = document.getElementById('successMessage');
+    const form = document.getElementById('payment-form');
+
+    const detectCardType = (number) => {
+        if (number.startsWith('8600')) return 'humo';
+        if (number.startsWith('9860')) return 'uzcard';
+        if (number.startsWith('4')) return 'visa';
+        if (number.startsWith('5')) return 'mastercard';
+        return '';
+    };
+
+    const updateCardLogo = (number) => {
+        const clean = number.replace(/\s/g, '');
+        const type = detectCardType(clean);
+        if (type) {
+            cardLogo.src = `https://cdn.jsdelivr.net/gh/TemurbekOsimov/pay-icons/${type}.png`;
+            cardLogo.style.display = 'block';
+        } else {
+            cardLogo.style.display = 'none';
+        }
+    };
+
+    cardInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+        let formatted = value.match(/.{1,4}/g);
+        e.target.value = formatted ? formatted.join(' ') : '';
+        updateCardLogo(value);
     });
 
-    // Форматирование даты
-    expireInput.addEventListener("input", () => {
-      let val = expireInput.value.replace(/\D/g, "").slice(0, 4);
-      if (val.length >= 3) val = val.slice(0, 2) + "/" + val.slice(2);
-      expireInput.value = val;
+    expiryInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        if (value.length >= 3) {
+            e.target.value = value.substring(0, 2) + '/' + value.substring(2);
+        } else {
+            e.target.value = value;
+        }
     });
 
-    // Только цифры и +
-    phoneInput.addEventListener("input", () => {
-      phoneInput.value = phoneInput.value.replace(/[^\d+]/g, "").slice(0, 13);
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const card = cardInput.value.replace(/\s/g, '');
+        const expiry = expiryInput.value;
+        const phone = document.getElementById('phone').value;
+
+        // Валидация
+        cardInput.classList.remove("error");
+        expiryInput.classList.remove("error");
+
+        let hasError = false;
+
+        if (card.length !== 16) {
+            cardInput.classList.add("error");
+            hasError = true;
+        }
+
+        if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+            expiryInput.classList.add("error");
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        loader.style.display = 'block';
+
+        // Имитируем успешную оплату
+        setTimeout(() => {
+            loader.style.display = 'none';
+            form.style.display = 'none';
+            successMessage.style.display = 'block';
+        }, 2000);
     });
+</script>
 
-    function pay() {
-      const card_number = cardInput.value.trim();
-      const expire = expireInput.value.trim();
-      const phone = phoneInput.value.trim();
-      const statusDiv = document.getElementById("status");
-      const channelLink = document.getElementById("channelLink");
-
-      // Удаляем старые ошибки
-      statusDiv.textContent = "";
-      channelLink.innerHTML = "";
-      cardInput.classList.remove("error");
-      expireInput.classList.remove("error");
-      phoneInput.classList.remove("error");
-
-      let valid = true;
-
-      if (card_number.replace(/\s/g, "").length !== 16) {
-        cardInput.classList.add("error");
-        valid = false;
-      }
-
-      if (!/^\d{2}\/\d{2}$/.test(expire)) {
-        expireInput.classList.add("error");
-        valid = false;
-      }
-
-      if (!/^\+998\d{9}$/.test(phone)) {
-        phoneInput.classList.add("error");
-        valid = false;
-      }
-
-      if (!valid) {
-        statusDiv.textContent = "Iltimos, barcha maydonlarni to‘g‘ri to‘ldiring.";
-        statusDiv.className = "error";
-        return;
-      }
-
-      // Условная "успешная" оплата
-      statusDiv.textContent = "To‘lov muvaffaqiyatli amalga oshirildi!";
-      statusDiv.className = "success";
-
-      // Показать ссылку на канал (замени на свою ссылку!)
-      channelLink.innerHTML = `
-        <p>Quyidagi havola orqali kanalga qo‘shiling:</p>
-        <a href="https://t.me/your_channel_link" target="_blank">👉 Kanalga o‘tish</a>
-      `;
-
-      // Можно закрыть WebApp через пару секунд:
-      // setTimeout(() => tg.close(), 3000);
-    }
-  </script>
 </body>
 </html>
