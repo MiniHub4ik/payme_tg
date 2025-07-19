@@ -44,6 +44,10 @@
       font-size: 16px;
     }
 
+    input.error {
+      border-color: red;
+    }
+
     button {
       width: 100%;
       padding: 12px;
@@ -63,13 +67,24 @@
     .success {
       color: green;
       text-align: center;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     .error {
       color: red;
       text-align: center;
+      margin-top: 15px;
+    }
+
+    .link {
+      text-align: center;
       margin-top: 10px;
+    }
+
+    .link a {
+      color: #0088cc;
+      font-weight: 600;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -80,7 +95,8 @@
     <input type="text" id="expire" maxlength="5" placeholder="Amal muddati (MM/YY)" />
     <input type="text" id="phone" maxlength="13" placeholder="Telefon raqam (+998...)" />
     <button onclick="pay()">To‘lovni amalga oshirish</button>
-    <div id="status" class=""></div>
+    <div id="status"></div>
+    <div id="channelLink" class="link"></div>
   </div>
 
   <script>
@@ -88,64 +104,77 @@
     const user = tg.initDataUnsafe?.user;
 
     const cardInput = document.getElementById("card_number");
-    cardInput.addEventListener("input", function (e) {
+    const expireInput = document.getElementById("expire");
+    const phoneInput = document.getElementById("phone");
+
+    // Автоматическое форматирование номера карты
+    cardInput.addEventListener("input", () => {
       let val = cardInput.value.replace(/\D/g, "").slice(0, 16);
       let formatted = val.match(/.{1,4}/g)?.join(" ") ?? "";
       cardInput.value = formatted;
     });
 
-    const expireInput = document.getElementById("expire");
-    expireInput.addEventListener("input", function (e) {
+    // Форматирование даты
+    expireInput.addEventListener("input", () => {
       let val = expireInput.value.replace(/\D/g, "").slice(0, 4);
-      if (val.length >= 3) {
-        val = val.slice(0, 2) + '/' + val.slice(2);
-      }
+      if (val.length >= 3) val = val.slice(0, 2) + "/" + val.slice(2);
       expireInput.value = val;
     });
 
-    const phoneInput = document.getElementById("phone");
-    phoneInput.addEventListener("input", function () {
-      phoneInput.value = phoneInput.value.replace(/[^\d+]/g, "");
+    // Только цифры и +
+    phoneInput.addEventListener("input", () => {
+      phoneInput.value = phoneInput.value.replace(/[^\d+]/g, "").slice(0, 13);
     });
 
-    async function pay() {
-      const card_number = cardInput.value;
-      const expire = expireInput.value;
-      const phone = phoneInput.value;
-
+    function pay() {
+      const card_number = cardInput.value.trim();
+      const expire = expireInput.value.trim();
+      const phone = phoneInput.value.trim();
       const statusDiv = document.getElementById("status");
-      statusDiv.className = "";
-      statusDiv.textContent = "";
+      const channelLink = document.getElementById("channelLink");
 
-      if (!card_number || !expire || !phone) {
-        statusDiv.textContent = "Iltimos, barcha maydonlarni to‘ldiring.";
+      // Удаляем старые ошибки
+      statusDiv.textContent = "";
+      channelLink.innerHTML = "";
+      cardInput.classList.remove("error");
+      expireInput.classList.remove("error");
+      phoneInput.classList.remove("error");
+
+      let valid = true;
+
+      if (card_number.replace(/\s/g, "").length !== 16) {
+        cardInput.classList.add("error");
+        valid = false;
+      }
+
+      if (!/^\d{2}\/\d{2}$/.test(expire)) {
+        expireInput.classList.add("error");
+        valid = false;
+      }
+
+      if (!/^\+998\d{9}$/.test(phone)) {
+        phoneInput.classList.add("error");
+        valid = false;
+      }
+
+      if (!valid) {
+        statusDiv.textContent = "Iltimos, barcha maydonlarni to‘g‘ri to‘ldiring.";
         statusDiv.className = "error";
         return;
       }
 
-      try {
-        const response = await fetch("/pay", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ card_number, expire, phone, user_id: user.id })
-        });
+      // Условная "успешная" оплата
+      statusDiv.textContent = "To‘lov muvaffaqiyatli amalga oshirildi!";
+      statusDiv.className = "success";
 
-        const result = await response.json();
+      // Показать ссылку на канал (замени на свою ссылку!)
+      channelLink.innerHTML = `
+        <p>Quyidagi havola orqali kanalga qo‘shiling:</p>
+        <a href="https://t.me/your_channel_link" target="_blank">👉 Kanalga o‘tish</a>
+      `;
 
-        if (result.status === "success") {
-          statusDiv.textContent = "To‘lov muvaffaqiyatli amalga oshirildi!";
-          statusDiv.className = "success";
-          setTimeout(() => tg.close(), 2000);
-        } else {
-          statusDiv.textContent = result.message || "Xatolik yuz berdi.";
-          statusDiv.className = "error";
-        }
-      } catch (err) {
-        statusDiv.textContent = "Serverga ulanishda xatolik.";
-        statusDiv.className = "error";
-      }
+      // Можно закрыть WebApp через пару секунд:
+      // setTimeout(() => tg.close(), 3000);
     }
   </script>
 </body>
