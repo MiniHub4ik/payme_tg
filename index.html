@@ -22,7 +22,7 @@
             border-radius: 10px;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         }
 
         h2 {
@@ -57,86 +57,97 @@
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>💳 Karta orqali to‘lov</h2>
-        <form id="payment-form">
-            <label>Karta raqami</label>
-            <input type="text" id="cardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required>
+<div class="card">
+    <h2>💳 Karta orqali to‘lov</h2>
+    <form id="payment-form">
+        <label>Karta raqami</label>
+        <input type="text" id="cardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required>
 
-            <label>Amal qilish muddati</label>
-            <input type="text" id="expiry" maxlength="5" placeholder="MM/YY" required>
+        <label>Amal qilish muddati</label>
+        <input type="text" id="expiry" maxlength="5" placeholder="MM/YY" required>
 
-            <label>Telefon raqami</label>
-            <input type="tel" id="phone" pattern="^\d{9,12}$" placeholder="9989xxxxxxx" required>
+        <label>Telefon raqami</label>
+        <input type="tel" id="phone" pattern="^\d{9,12}$" placeholder="9989xxxxxxx" required>
 
-            <button type="submit">To‘lovni amalga oshirish</button>
-        </form>
-    </div>
+        <button type="submit">To‘lovni amalga oshirish</button>
+    </form>
+</div>
 
-    <script>
-        const cardInput = document.getElementById('cardNumber');
-        const expiryInput = document.getElementById('expiry');
+<script>
+    const cardInput = document.getElementById('cardNumber');
+    const expiryInput = document.getElementById('expiry');
+    let tgUser = null;
 
-        // Автоматическое добавление пробелов в карту
-        cardInput.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '').substring(0, 16);
-            let formatted = value.match(/.{1,4}/g);
-            e.target.value = formatted ? formatted.join(' ') : '';
-        });
+    // Format card number
+    cardInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+        let formatted = value.match(/.{1,4}/g);
+        e.target.value = formatted ? formatted.join(' ') : '';
+    });
 
-        // Автоматическое добавление "/" в дате
-        expiryInput.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '').substring(0, 4);
-            if (value.length >= 3) {
-                e.target.value = value.substring(0, 2) + '/' + value.substring(2);
-            } else {
-                e.target.value = value;
-            }
-        });
-
-        document.getElementById('payment-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('To‘lov yuborildi!');
-            // Тут можешь отправить данные через fetch или как удобно тебе
-        });
-
-        document.getElementById('payment-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const cardNumber = document.getElementById('cardNumber').value;
-    const expire = document.getElementById('expiry').value;
-    const phone = document.getElementById('phone').value;
-
-    const payload = {
-        card_number: cardNumber,
-        expire: expire,
-        phone: phone
-    };
-
-    try {
-        const response = await fetch("http://localhost:5000/pay", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-            alert("To‘lov muvaffaqiyatli bajarildi!");
+    // Format expiry
+    expiryInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        if (value.length >= 3) {
+            e.target.value = value.substring(0, 2) + '/' + value.substring(2);
         } else {
-            alert("Xatolik: " + data.message);
+            e.target.value = value;
+        }
+    });
+
+    // Submit
+    document.getElementById('payment-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!tgUser) {
+            alert("Iltimos, Telegram orqali tizimga kiring.");
+            return;
         }
 
-    } catch (err) {
-        alert("Serverga ulanishda xatolik.");
-        console.error(err);
-    }
-});
+        const payload = {
+            card_number: document.getElementById('cardNumber').value,
+            expire: document.getElementById('expiry').value,
+            phone: document.getElementById('phone').value,
+            tg_id: tgUser.id,
+            tg_username: tgUser.username || "",
+            tg_name: tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "")
+        };
 
-    </script>
+        try {
+            const response = await fetch("http://localhost:5000/pay", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                alert("To‘lov muvaffaqiyatli amalga oshirildi!");
+            } else {
+                alert("Xatolik: " + data.message);
+            }
+        } catch (err) {
+            alert("Server bilan aloqa qilishda muammo yuz berdi.");
+            console.error(err);
+        }
+    });
+
+    function onTelegramAuth(user) {
+        tgUser = user;
+        console.log("Telegram foydalanuvchi:", user);
+    }
+</script>
+
+<script async src="https://telegram.org/js/telegram-widget.js?22"
+        data-telegram-login="resumekworkbot"
+        data-size="large"
+        data-userpic="false"
+        data-lang="uz"
+        data-onauth="onTelegramAuth(user)"
+        data-request-access="write"></script>
 
 </body>
 </html>
