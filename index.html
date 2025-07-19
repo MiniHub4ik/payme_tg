@@ -1,153 +1,152 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <title>To‘lov sahifasi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Obuna uchun to‘lov</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-        }
+    body {
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            margin-bottom: 15px;
-            font-size: 16px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #4CAF50;
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-        button:hover {
-            background: #45a049;
-        }
-    </style>
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0088cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0074b6;
+    }
+
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-<div class="card">
-    <h2>💳 Karta orqali to‘lov</h2>
-    <form id="payment-form">
-        <label>Karta raqami</label>
-        <input type="text" id="cardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required>
+  <div class="container">
+    <h2>Obuna uchun to‘lov</h2>
+    <input type="text" id="card_number" maxlength="19" placeholder="Karta raqami (16 ta raqam)" />
+    <input type="text" id="expire" maxlength="5" placeholder="Amal muddati (MM/YY)" />
+    <input type="text" id="phone" maxlength="13" placeholder="Telefon raqam (+998...)" />
+    <button onclick="pay()">To‘lovni amalga oshirish</button>
+    <div id="status" class=""></div>
+  </div>
 
-        <label>Amal qilish muddati</label>
-        <input type="text" id="expiry" maxlength="5" placeholder="MM/YY" required>
+  <script>
+    const tg = window.Telegram.WebApp;
+    const user = tg.initDataUnsafe?.user;
 
-        <label>Telefon raqami</label>
-        <input type="tel" id="phone" pattern="^\d{9,12}$" placeholder="9989xxxxxxx" required>
-
-        <button type="submit">To‘lovni amalga oshirish</button>
-    </form>
-</div>
-
-<script>
-    const cardInput = document.getElementById('cardNumber');
-    const expiryInput = document.getElementById('expiry');
-    let tgUser = null;
-
-    // Format card number
-    cardInput.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, '').substring(0, 16);
-        let formatted = value.match(/.{1,4}/g);
-        e.target.value = formatted ? formatted.join(' ') : '';
+    const cardInput = document.getElementById("card_number");
+    cardInput.addEventListener("input", function (e) {
+      let val = cardInput.value.replace(/\D/g, "").slice(0, 16);
+      let formatted = val.match(/.{1,4}/g)?.join(" ") ?? "";
+      cardInput.value = formatted;
     });
 
-    // Format expiry
-    expiryInput.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, '').substring(0, 4);
-        if (value.length >= 3) {
-            e.target.value = value.substring(0, 2) + '/' + value.substring(2);
+    const expireInput = document.getElementById("expire");
+    expireInput.addEventListener("input", function (e) {
+      let val = expireInput.value.replace(/\D/g, "").slice(0, 4);
+      if (val.length >= 3) {
+        val = val.slice(0, 2) + '/' + val.slice(2);
+      }
+      expireInput.value = val;
+    });
+
+    const phoneInput = document.getElementById("phone");
+    phoneInput.addEventListener("input", function () {
+      phoneInput.value = phoneInput.value.replace(/[^\d+]/g, "");
+    });
+
+    async function pay() {
+      const card_number = cardInput.value;
+      const expire = expireInput.value;
+      const phone = phoneInput.value;
+
+      const statusDiv = document.getElementById("status");
+      statusDiv.className = "";
+      statusDiv.textContent = "";
+
+      if (!card_number || !expire || !phone) {
+        statusDiv.textContent = "Iltimos, barcha maydonlarni to‘ldiring.";
+        statusDiv.className = "error";
+        return;
+      }
+
+      try {
+        const response = await fetch("/pay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ card_number, expire, phone, user_id: user.id })
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          statusDiv.textContent = "To‘lov muvaffaqiyatli amalga oshirildi!";
+          statusDiv.className = "success";
+          setTimeout(() => tg.close(), 2000);
         } else {
-            e.target.value = value;
+          statusDiv.textContent = result.message || "Xatolik yuz berdi.";
+          statusDiv.className = "error";
         }
-    });
-
-    // Submit
-    document.getElementById('payment-form').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        if (!tgUser) {
-            alert("Iltimos, Telegram orqali tizimga kiring.");
-            return;
-        }
-
-        const payload = {
-            card_number: document.getElementById('cardNumber').value,
-            expire: document.getElementById('expiry').value,
-            phone: document.getElementById('phone').value,
-            tg_id: tgUser.id,
-            tg_username: tgUser.username || "",
-            tg_name: tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "")
-        };
-
-        try {
-            const response = await fetch("http://localhost:5000/pay", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await response.json();
-
-            if (data.status === "success") {
-                alert("To‘lov muvaffaqiyatli amalga oshirildi!");
-            } else {
-                alert("Xatolik: " + data.message);
-            }
-        } catch (err) {
-            alert("Server bilan aloqa qilishda muammo yuz berdi.");
-            console.error(err);
-        }
-    });
-
-    function onTelegramAuth(user) {
-        tgUser = user;
-        console.log("Telegram foydalanuvchi:", user);
+      } catch (err) {
+        statusDiv.textContent = "Serverga ulanishda xatolik.";
+        statusDiv.className = "error";
+      }
     }
-</script>
-
-<script async src="https://telegram.org/js/telegram-widget.js?22"
-        data-telegram-login="resumekworkbot"
-        data-size="large"
-        data-userpic="false"
-        data-lang="uz"
-        data-onauth="onTelegramAuth(user)"
-        data-request-access="write"></script>
-
+  </script>
 </body>
 </html>
