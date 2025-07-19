@@ -1,135 +1,104 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Obuna | Payme</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <title>To‘lov sahifasi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
 
-    .container {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+        }
 
-    .header {
-      text-align: right;
-      font-size: 14px;
-      color: #555;
-    }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .tarif-box {
-      background: linear-gradient(135deg, #dbeafe, #e0f2fe);
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px 0;
-      text-align: center;
-    }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
 
-    .tarif-box h2 {
-      margin: 0;
-      font-size: 18px;
-      color: #1e3a8a;
-    }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-    .price {
-      font-size: 28px;
-      font-weight: bold;
-      color: #1e3a8a;
-      margin: 10px 0;
-    }
-
-    .card-input {
-      margin-top: 20px;
-    }
-
-    .card-input input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #06b6d4;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0891b2;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-      margin-top: 20px;
-    }
-
-    .footer img {
-      height: 20px;
-      vertical-align: middle;
-    }
-
-    .footer a {
-      color: #06b6d4;
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
-    }
-  </style>
+        button:hover {
+            background: #45a049;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      Alisher Atajanov<br/>
-      348342573<br/>
-      @a_atajanov
+    <div class="card">
+        <h2>💳 Karta orqali to‘lov</h2>
+        <form id="payment-form">
+            <label>Karta raqami</label>
+            <input type="text" id="cardNumber" maxlength="19" placeholder="0000 0000 0000 0000" required>
+
+            <label>Amal qilish muddati</label>
+            <input type="text" id="expiry" maxlength="5" placeholder="MM/YY" required>
+
+            <label>Telefon raqami</label>
+            <input type="tel" id="phone" pattern="^\d{9,12}$" placeholder="9989xxxxxxx" required>
+
+            <button type="submit">To‘lovni amalga oshirish</button>
+        </form>
     </div>
 
-    <div class="tarif-box">
-      <h2>AtajanovBlog</h2>
-      <p>Tarif: Oylik obuna</p>
-      <div class="price">27000 so'm / 1 oyiga</div>
-    </div>
+    <script>
+        const cardInput = document.getElementById('cardNumber');
+        const expiryInput = document.getElementById('expiry');
 
-    <form method="POST" action="/pay">
-      <div class="card-input">
-        <label>Karta raqami</label>
-        <input type="text" name="card_number" placeholder="0000 0000 0000 0000" required />
+        // Автоматическое добавление пробелов в карту
+        cardInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let formatted = value.match(/.{1,4}/g);
+            e.target.value = formatted ? formatted.join(' ') : '';
+        });
 
-        <label>Muddati</label>
-        <input type="text" name="expiry" placeholder="MM / YY" required />
-      </div>
-      <button type="submit">Davom etish</button>
-    </form>
+        // Автоматическое добавление "/" в дате
+        expiryInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+            if (value.length >= 3) {
+                e.target.value = value.substring(0, 2) + '/' + value.substring(2);
+            } else {
+                e.target.value = value;
+            }
+        });
 
-    <div class="footer">
-      Davom etish orqali siz <a href="#">Payme Ofertasini</a> tasdiqlaysiz<br/><br/>
-      Powered by <img src="https://cdn.payme.uz/logo/payme_logo.svg" alt="Payme" />
-    </div>
-  </div>
+        document.getElementById('payment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('To‘lov yuborildi!');
+            // Тут можешь отправить данные через fetch или как удобно тебе
+        });
+    </script>
 </body>
 </html>
