@@ -194,6 +194,16 @@
             successMessage.style.display = 'block';
         }, 2000);
     });
+
+    if (data.status === "success") {
+    document.querySelector(".success-message").innerHTML = `
+        <div class="done">✅</div>
+        <p>To‘lov muvaffaqiyatli bajarildi!</p>
+        <a class="link" href="${data.invite_link}" target="_blank">📥 Kanalga o‘tish</a>
+    `;
+    form.style.display = "none";
+}
+
 </script>
 
 </body>
